@@ -39,17 +39,24 @@ abstract class ActiveRecordEntity
         $db->query($sql, $params2values, static::class);
         $this->id = $db->getLastInsertId();
 
-        /* Пробегаем по свойствам объекта, смотрим какие из них не установлены,
-         * делаем заброс в бд по нужному свойству и, если получаем ответ,
-         * записываем в сойство объекта полученное значение. */
+        $undefinedProperties = [];
+        $underscoredUndefinedProperties = [];
         foreach ($this as $property=>$value){
             if($value === null){
-                $underscoredProperty = $this->camelCaseToUnderscore($property);
-                $sql = 'SELECT `'.$underscoredProperty.'` FROM `'.static::getTableName().'` WHERE id = :id';
-                $queryResult = $db->query($sql, [':id' => $this->id]);
-                if($queryResult != null) {
-                    $this->$property = $queryResult[0]->$underscoredProperty;
-                }
+                $undefinedProperties[] = $property;
+                $underscoredUndefinedProperties[] = $this->camelCaseToUnderscore($property);
+            }
+        }
+
+        $sql = 'SELECT '.implode(',', $underscoredUndefinedProperties).' FROM `'.static::getTableName().'` WHERE id = :id';
+        $db = Db::getInstance();
+        $sqlResult = $db->query($sql,[':id' => $this->id]);
+
+        if($sqlResult !== null) {
+            for ($i = 0; $i < count($undefinedProperties); $i++) {
+                $undefinedProperty =  $undefinedProperties[$i];
+                $underscoredUndefinedProperty = $underscoredUndefinedProperties[$i];
+                $this->$undefinedProperty = $sqlResult[0]->$underscoredUndefinedProperty;
             }
         }
     }
