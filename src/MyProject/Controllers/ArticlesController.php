@@ -2,6 +2,7 @@
 
 namespace MyProject\Controllers;
 
+use MyProject\Exceptions\NotFoundException;
 use MyProject\Models\Articles\Article;
 use MyProject\Models\Users\User;
 use MyProject\Views\View;
@@ -19,13 +20,9 @@ class ArticlesController
     public function view(int $articleId)
     {
         $article = Article::getById($articleId);
-        $reflector = new \ReflectionObject($article);
-        $properties = $reflector->getProperties();
 
-        if($article === [])
-        {
-            $this->view->renderHtml('errors/404.php', [], 400);
-            return;
+        if($article === null) {
+            throw new NotFoundException();
         }
 
         $this->view->renderHtml('articleView.php', ['article' => $article]);
@@ -35,8 +32,7 @@ class ArticlesController
     {
         $article = Article::getById($articleId);
         if($article === null) {
-            $this->view->renderHtml('errors/404.php', [], 404);
-            return;
+            throw new NotFoundException();
         }
 
         $article->setName('Новая статья...');
@@ -65,7 +61,7 @@ class ArticlesController
             var_dump($article);
         }
         else{
-            $this->view->renderHtml('errors/404.php', [], 404);
+            throw new NotFoundException();
         }
     }
 }
