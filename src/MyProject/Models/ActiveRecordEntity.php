@@ -2,6 +2,7 @@
 
 namespace MyProject\Models;
 
+use MyProject\Models\Articles\Article;
 use MyProject\Services\Db;
 
 abstract class ActiveRecordEntity
@@ -39,24 +40,10 @@ abstract class ActiveRecordEntity
         $db->query($sql, $params2values, static::class);
         $this->id = $db->getLastInsertId();
 
-        $undefinedProperties = [];
-        $underscoredUndefinedProperties = [];
+        $entity = self::getById($this->id);
         foreach ($this as $property=>$value){
             if($value === null){
-                $undefinedProperties[] = $property;
-                $underscoredUndefinedProperties[] = $this->camelCaseToUnderscore($property);
-            }
-        }
-
-        $sql = 'SELECT '.implode(',', $underscoredUndefinedProperties).' FROM `'.static::getTableName().'` WHERE id = :id';
-        $db = Db::getInstance();
-        $sqlResult = $db->query($sql,[':id' => $this->id]);
-
-        if($sqlResult !== null) {
-            for ($i = 0; $i < count($undefinedProperties); $i++) {
-                $undefinedProperty =  $undefinedProperties[$i];
-                $underscoredUndefinedProperty = $underscoredUndefinedProperties[$i];
-                $this->$undefinedProperty = $sqlResult[0]->$underscoredUndefinedProperty;
+                $this->$property = $entity->$property;
             }
         }
     }
