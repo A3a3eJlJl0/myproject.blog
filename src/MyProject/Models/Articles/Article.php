@@ -59,7 +59,7 @@ class Article extends ActiveRecordEntity
     /**
      * @param int $authorId
      */
-    public function setAuthorId(int $authorId): void
+    public function setAuthorId(int $authorId)
     {
         $this->authorId = $authorId;
     }
@@ -67,7 +67,7 @@ class Article extends ActiveRecordEntity
     /**
      * @param string $createdAt
      */
-    public function setCreatedAt(string $createdAt): void
+    public function setCreatedAt(string $createdAt)
     {
         $this->createdAt = $createdAt;
     }
@@ -83,7 +83,7 @@ class Article extends ActiveRecordEntity
     /**
      * @param string $name
      */
-    public function setName(string $name): void
+    public function setName(string $name)
     {
         $this->name = $name;
     }
@@ -91,7 +91,7 @@ class Article extends ActiveRecordEntity
     /**
      * @param string $text
      */
-    public function setText(string $text): void
+    public function setText(string $text)
     {
         $this->text = $text;
     }
