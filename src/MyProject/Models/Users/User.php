@@ -21,11 +21,6 @@ class User extends ActiveRecordEntity
     }
 
 
-    public function getNickname()
-    {
-        return $this->nickname;
-    }
-
     static public function signUp(array $userData): self
     {
         if(empty($userData['nickname'])) {
@@ -66,5 +61,21 @@ class User extends ActiveRecordEntity
         $user->save();
 
         return $user;
+    }
+
+    public function activate()
+    {
+        $this->isConfirmed = true;
+        $this->save();
+    }
+
+    public function getNickname()
+    {
+        return $this->nickname;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
     }
 }
