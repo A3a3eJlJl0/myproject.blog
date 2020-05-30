@@ -78,4 +78,9 @@ class User extends ActiveRecordEntity
     {
         return $this->email;
     }
+
+    public function getIsConfirmed()
+    {
+        return $this->isConfirmed;
+    }
 }

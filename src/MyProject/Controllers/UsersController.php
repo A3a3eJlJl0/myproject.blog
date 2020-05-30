@@ -2,6 +2,7 @@
 
 namespace MyProject\Controllers;
 
+use MyProject\Exceptions\DbException;
 use MyProject\Exceptions\InvalidArgumentException;
 use MyProject\Models\Users\User;
 use MyProject\Models\Users\UserActivationService;
@@ -43,11 +44,28 @@ class UsersController
 
     public function activate(int $userId, string $activationCode)
     {
-        $user = User::getById($userId);
+        try {
+            $user = User::getById($userId);
 
-        if(UserActivationService::checkActivationCode($user, $activationCode)){
-            $user->activate();
-            echo 'OK!';
+            if(empty($user)) {
+                throw new DbException('Пользователь не найден.');
+            }
+
+            if($user->getIsConfirmed()) {
+                throw new InvalidArgumentException();
+            }
+
+                if (UserActivationService::checkActivationCode($user, $activationCode)) {
+                    $user->activate();
+                    UserActivationService::removeActivationCode($user, $activationCode);
+                    $this->view->renderHtml('/Users/ActivationSuccess.php');
+                }
+        }
+        catch (DbException $e) {
+            $this->view->renderHtml('/Users/ActivationError.php', ['error' => $e->getMessage()]);
+        }
+        catch (InvalidArgumentException $e) {
+            $this->view->renderHtml('/Users/ActivationAlready.php');
         }
     }
 }

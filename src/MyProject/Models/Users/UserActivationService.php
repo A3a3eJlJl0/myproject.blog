@@ -2,6 +2,7 @@
 
 namespace MyProject\Models\Users;
 
+use MyProject\Exceptions\DbException;
 use MyProject\Services\Db;
 
 class UserActivationService
@@ -24,9 +25,22 @@ class UserActivationService
     {
         $db = Db::getInstance();
         $result = $db->query(
-            'select * from '. self::TABLE_NAME . ' where user_id = :user_id and code = :code;',
-            [':user_id' => $user->getId(), ':code' => $code]);
+            'select * from ' . self::TABLE_NAME . ' where user_id = :user_id and code = :code;',
+            [':user_id' => $user->getId(), ':code' => $code]
+        );
 
-        return !empty($result);
+        if (empty($result)) {
+            throw new DbException('Неверный код активации.');
+        }
+        return true;
+    }
+
+    public static function removeActivationCode(User $user, string $code)
+    {
+        $db = Db::getInstance();
+        $db->query(
+            'delete from ' . self::TABLE_NAME . ' where user_id = :user_id and code = :code;',
+            [':user_id' => $user->getId(), ':code' => $code]
+        );
     }
 }
