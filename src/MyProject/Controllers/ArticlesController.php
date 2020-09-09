@@ -14,7 +14,7 @@ class ArticlesController
 
     public function __construct()
     {
-        $this->view = new View(__DIR__.'/../../Templates');
+        $this->view = new View(__DIR__.'/../Templates');
     }
 
     public function view(int $articleId)
