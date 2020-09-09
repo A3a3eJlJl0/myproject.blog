@@ -15,7 +15,7 @@ class UsersController
 
     public function __construct()
     {
-        $this->view = new View(__DIR__ . '/../../Templates');
+        $this->view = new View(__DIR__ . '/../Templates');
     }
 
     public function signUp()
@@ -25,7 +25,7 @@ class UsersController
                 $user = User::signUp($_POST);
             }
             catch (InvalidArgumentException $e){
-                $this->view->renderHtml('Users/signUp.php', ['error' => $e->getMessage()]);
+                $this->view->renderHtml('users/signUp.php', ['error' => $e->getMessage()]);
                 return;
             }
         }
@@ -34,11 +34,11 @@ class UsersController
             $code = UserActivationService::createActivationCode($user);
             EmailSender::send($user, 'Activation', 'UserActivation.php', ['code' => $code, 'userId' => $user->getId()]);
 
-            $this->view->renderHtml('Users/signUpSuccessful.php');
+            $this->view->renderHtml('users/signUpSuccessful.php');
             return;
         }
 
-        $this->view->renderHtml('Users/signUp.php');
+        $this->view->renderHtml('users/signUp.php');
 
     }
 
@@ -54,18 +54,32 @@ class UsersController
             if($user->getIsConfirmed()) {
                 throw new InvalidArgumentException();
             }
-
-                if (UserActivationService::checkActivationCode($user, $activationCode)) {
-                    $user->activate();
-                    UserActivationService::removeActivationCode($user, $activationCode);
-                    $this->view->renderHtml('/Users/ActivationSuccess.php');
-                }
+            if (UserActivationService::checkActivationCode($user, $activationCode)) {
+                $user->activate();
+                UserActivationService::removeActivationCode($user, $activationCode);
+                $this->view->renderHtml('/users/ActivationSuccess.php');
+            }
         }
         catch (DbException $e) {
-            $this->view->renderHtml('/Users/ActivationError.php', ['error' => $e->getMessage()]);
+            $this->view->renderHtml('/users/ActivationError.php', ['error' => $e->getMessage()]);
         }
         catch (InvalidArgumentException $e) {
-            $this->view->renderHtml('/Users/ActivationAlready.php');
+            $this->view->renderHtml('/users/ActivationAlready.php');
         }
+    }
+
+    public function login()
+    {
+        if(!empty($_POST)){
+            try {
+                User::login($_POST);
+            }
+            catch(InvalidArgumentException $e){
+                $error = $e->getMessage();
+                $this->view->renderHtml('users/login.php', ['error' => $error]);
+                return;
+            }
+        }
+        $this->view->renderHtml('users/login.php');
     }
 }
