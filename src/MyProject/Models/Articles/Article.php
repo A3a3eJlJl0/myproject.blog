@@ -2,6 +2,7 @@
 
 namespace MyProject\Models\Articles;
 
+use League\CommonMark\CommonMarkConverter;
 use MyProject\Models\ActiveRecordEntity;
 use MyProject\Models\Users\User;
 
@@ -41,6 +42,16 @@ class Article extends ActiveRecordEntity
         return $this->text;
     }
 
+    public function getParsedText()
+    {
+        $converter = new CommonMarkConverter([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return $converter->convertToHtml($this->getText());
+    }
+
     /**
      * @return int
      */
@@ -48,8 +59,6 @@ class Article extends ActiveRecordEntity
     {
         return $this->authorId;
     }
-
-
 
     public function getAuthor(): User
     {

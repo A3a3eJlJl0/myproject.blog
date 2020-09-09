@@ -1,0 +1,19 @@
+{
+    "name": "azazello/myproject.blog",
+    "type": "project",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "azazello",
+            "email": "e.p.afonchenko@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MyProject\\": "src/MyProject/"
+        }
+    },
+    "require": {
+        "league/commonmark": "^1.5"
+    }
+}
