@@ -63,28 +63,4 @@ class UsersController extends AbstractController
             $this->view->renderHtml('/users/ActivationAlready.php');
         }
     }
-
-    public function login()
-    {
-        if(!empty($_POST)){
-            try {
-                $user = User::login($_POST);
-                UserAuthService::createToken($user);
-                header('Location: /');
-                exit();
-            }
-            catch(InvalidArgumentException $e){
-                $error = $e->getMessage();
-                $this->view->renderHtml('users/login.php', ['error' => $error]);
-                return;
-            }
-        }
-        $this->view->renderHtml('users/login.php');
-    }
-
-    public function logout(): void
-    {
-        UserAuthService::deleteToken();
-        header('Location: /');
-    }
 }
