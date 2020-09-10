@@ -3,6 +3,7 @@
 namespace MyProject\Models\Articles;
 
 use League\CommonMark\CommonMarkConverter;
+use MyProject\Exceptions\InvalidArgumentException;
 use MyProject\Models\ActiveRecordEntity;
 use MyProject\Models\Users\User;
 
@@ -26,6 +27,7 @@ class Article extends ActiveRecordEntity
     protected $createdAt;
 
     //------------------------------------------  Getters  ----------------------------------------------------------------
+
     /**
      * @return string
      */
@@ -65,6 +67,7 @@ class Article extends ActiveRecordEntity
         return User::getById($this->authorId);
     }
     //------------------------------------------  Setters  ----------------------------------------------------------------
+
     /**
      * @param int $authorId
      */
@@ -109,9 +112,30 @@ class Article extends ActiveRecordEntity
     {
         $this->authorId = $author->getId();
     }
+
     //------------------------------------------  Others  ----------------------------------------------------------------
     protected static function getTableName(): string
     {
         return 'articles';
+    }
+
+    public static function createFromArray(array $fields, User $author): Article
+    {
+        if (empty($fields['name'])) {
+            throw new InvalidArgumentException('Не передан заголовок статьи.');
+        }
+
+        if (empty($fields['text'])) {
+            throw new InvalidArgumentException('Не передан текст статьи');
+        }
+
+        $article = new Article();
+        $article->setName($fields['name']);
+        $article->setText($fields['text']);
+        $article->setAuthor($author);
+
+        $article->save();
+
+        return $article;
     }
 }

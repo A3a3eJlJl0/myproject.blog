@@ -2,9 +2,10 @@
 
 namespace MyProject\Controllers;
 
+use MyProject\Exceptions\InvalidArgumentException;
 use MyProject\Exceptions\NotFoundException;
+use MyProject\Exceptions\UnauthorizedException;
 use MyProject\Models\Articles\Article;
-use MyProject\Models\Users\User;
 
 
 class ArticlesController extends AbstractController
@@ -37,14 +38,19 @@ class ArticlesController extends AbstractController
 
     public function add()
     {
-        $author = User::getById(1);
-
-        $article = new Article();
-        $article->setName('Ахахах');
-        $article->setText('Оххохох');
-        $article->setAuthor($author);
-
-        $article->save();
+        if ($this->user === null) {
+            throw new UnauthorizedException();
+        }
+        if (!empty($_POST)) {
+            try {
+                $article = Article::createFromArray($_POST, $this->user);
+            } catch (InvalidArgumentException $e) {
+                $this->view->renderHtml('articleAdd.php', ['error' => $e->getMessage()]);
+            }
+            header('Location: /articles/' . $article->getId(), true, 302);
+            exit();
+        }
+        $this->view->renderHtml('articleAdd.php');
     }
 
     public function delete(int $articleId)
@@ -52,7 +58,6 @@ class ArticlesController extends AbstractController
         $article = Article::getById($articleId);
         if($article != null) {
             $article->delete();
-            var_dump($article);
         }
         else{
             throw new NotFoundException();
