@@ -23,31 +23,31 @@ class User extends ActiveRecordEntity
 
     static public function signUp(array $userData): self
     {
-        if(empty($userData['nickname'])) {
+        if (empty($userData['nickname'])) {
             throw new InvalidArgumentException('Не передан nickname');
         }
 
-        if(!preg_match('/^[a-zA-Z0-9]+$/', $userData['nickname'])) {
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $userData['nickname'])) {
             throw new InvalidArgumentException('nickname может содержать только символы латинского алфавита и цифры');
         }
 
-        if(empty($userData['email'])) {
+        if (empty($userData['email'])) {
             throw new InvalidArgumentException('Не передан email');
         }
 
-        if(empty($userData['password'])) {
+        if (empty($userData['password'])) {
             throw new InvalidArgumentException('Не передан password');
         }
 
-        if(mb_strlen($userData['password']) < 8){
+        if (mb_strlen($userData['password']) < 8) {
             throw new InvalidArgumentException('Password должен быть не менее 8 символов');
         }
 
-        if(static::findOneByColumn('nickname', $userData['nickname']) !== null){
+        if (static::findOneByColumn('nickname', $userData['nickname']) !== null) {
             throw new InvalidArgumentException('Пользователь с таким nickname уже существует');
         }
 
-        if(static::findOneByColumn('email', $userData['email']) !== null){
+        if (static::findOneByColumn('email', $userData['email']) !== null) {
             throw new InvalidArgumentException('Пользователь с таким email уже существует');
         }
 
@@ -61,6 +61,40 @@ class User extends ActiveRecordEntity
         $user->save();
 
         return $user;
+    }
+
+    public static function login(array $loginData): User
+    {
+        if (empty($loginData['email'])) {
+            throw new InvalidArgumentException('Не указан email');
+        }
+
+        if (empty($loginData['password'])) {
+            throw new InvalidArgumentException('Не указан пароль');
+        }
+
+        $user = User::findOneByColumn('email', $loginData['email']);
+        if (empty($user)) {
+            throw new InvalidArgumentException('Пользователь не найден');
+        }
+
+        if (!password_verify($loginData['password'], $user->getPasswordHash())) {
+            throw new InvalidArgumentException('Неверный пароль');
+        }
+
+        if (!$user->getIsConfirmed()) {
+            throw new InvalidArgumentException('Пользователь не подтвержден');
+        }
+
+        $user->refreshAuthToken();
+        $user->save();
+
+        return $user;
+    }
+
+    private function refreshAuthToken()
+    {
+        $this->authToken = sha1(random_bytes(100) . random_bytes(100));
     }
 
     public function activate()
@@ -82,5 +116,18 @@ class User extends ActiveRecordEntity
     public function getIsConfirmed()
     {
         return $this->isConfirmed;
+    }
+
+    public function getPasswordHash(): string
+    {
+        return $this->passwordHash;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthToken() : string
+    {
+        return $this->authToken;
     }
 }

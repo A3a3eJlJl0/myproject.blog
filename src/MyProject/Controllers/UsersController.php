@@ -2,21 +2,17 @@
 
 namespace MyProject\Controllers;
 
+use League\CommonMark\Block\Element\AbstractBlock;
 use MyProject\Exceptions\DbException;
 use MyProject\Exceptions\InvalidArgumentException;
 use MyProject\Models\Users\User;
 use MyProject\Models\Users\UserActivationService;
 use MyProject\Services\EmailSender;
+use MyProject\Services\UserAuthService;
 use MyProject\Views\View;
 
-class UsersController
+class UsersController extends AbstractController
 {
-    private $view;
-
-    public function __construct()
-    {
-        $this->view = new View(__DIR__ . '/../Templates');
-    }
 
     public function signUp()
     {
@@ -72,7 +68,10 @@ class UsersController
     {
         if(!empty($_POST)){
             try {
-                User::login($_POST);
+                $user = User::login($_POST);
+                UserAuthService::createToken($user);
+                header('Location: /');
+                exit();
             }
             catch(InvalidArgumentException $e){
                 $error = $e->getMessage();
@@ -81,5 +80,11 @@ class UsersController
             }
         }
         $this->view->renderHtml('users/login.php');
+    }
+
+    public function logout(): void
+    {
+        UserAuthService::deleteToken();
+        header('Location: /');
     }
 }

@@ -5,17 +5,11 @@ namespace MyProject\Controllers;
 use MyProject\Exceptions\NotFoundException;
 use MyProject\Models\Articles\Article;
 use MyProject\Models\Users\User;
-use MyProject\Views\View;
 
-class ArticlesController
+
+class ArticlesController extends AbstractController
 {
-    private $view;
     private $db;
-
-    public function __construct()
-    {
-        $this->view = new View(__DIR__.'/../Templates');
-    }
 
     public function view(int $articleId)
     {

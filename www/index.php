@@ -28,10 +28,10 @@ try {
     $controller->$actionName(...$matches);
 }
 catch (\MyProject\Exceptions\DbException $e){
-    $view = new \MyProject\Views\View(__DIR__.'/../src/templates');
+    $view = new \MyProject\Views\View(__DIR__.'/../src/MyProject/Templates');
     $view->renderHtml('errors/500.php', ['error' => $e->getMessage()], 500);
 }
 catch (\MyProject\Exceptions\NotFoundException $e) {
-    $view = new \MyProject\Views\View(__DIR__.'/../src/templates');
+    $view = new \MyProject\Views\View(__DIR__.'/../src/MyProject/Templates');
     $view->renderHtml('errors/404.php', [], 404);
 }
