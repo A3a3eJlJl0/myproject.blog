@@ -2,14 +2,13 @@
 
 namespace MyProject\Controllers;
 
-use League\CommonMark\Block\Element\AbstractBlock;
 use MyProject\Exceptions\DbException;
 use MyProject\Exceptions\InvalidArgumentException;
 use MyProject\Models\Users\User;
 use MyProject\Models\Users\UserActivationService;
 use MyProject\Services\EmailSender;
 use MyProject\Services\UserAuthService;
-use MyProject\Views\View;
+
 
 class UsersController extends AbstractController
 {

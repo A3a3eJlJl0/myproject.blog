@@ -13,6 +13,7 @@ use MyProject\Models\Users\User;
  */
 class Article extends ActiveRecordEntity
 {
+
     //------------------------------------------  Vars  ----------------------------------------------------------------
     /** @var string */
     protected $name;
@@ -137,5 +138,24 @@ class Article extends ActiveRecordEntity
         $article->save();
 
         return $article;
+    }
+
+    public function updateFromArray(array $fields, User $author)
+    {
+        if (empty($fields['name'])) {
+            throw new InvalidArgumentException('Не передан заголовок статьи.');
+        }
+
+        if (empty($fields['text'])) {
+            throw new InvalidArgumentException('Не передан текст статьи');
+        }
+
+        $this->setName($fields['name']);
+        $this->setText($fields['text']);
+        $this->setAuthor($author);
+
+        $this->save();
+
+        return $this;
     }
 }

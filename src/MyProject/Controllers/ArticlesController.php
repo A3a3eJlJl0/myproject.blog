@@ -16,24 +16,34 @@ class ArticlesController extends AbstractController
     {
         $article = Article::getById($articleId);
 
-        if($article === null) {
+        if ($article === null) {
             throw new NotFoundException();
         }
 
-        $this->view->renderHtml('articleView.php', ['article' => $article]);
+        $this->view->renderHtml('article/view.php', ['article' => $article, 'user' => $this->user]);
     }
 
     public function edit(int $articleId)
     {
         $article = Article::getById($articleId);
-        if($article === null) {
+        if ($article === null) {
             throw new NotFoundException();
         }
 
-        $article->setName('Новая статья...');
-        $article->setText('Новый текст...');
+        if ($this->user === null) {
+            throw new UnauthorizedException();
+        }
 
-        $article->save();
+        if (!empty($_POST)) {
+            try {
+                $article->updateFromArray($_POST, $this->user);
+            } catch (InvalidArgumentException $e) {
+                $this->view->renderHtml('article/add.php', ['error' => $e->getMessage()]);
+            }
+            header('Location: /articles/' . $article->getId(), true, 302);
+            exit();
+        }
+        $this->view->renderHtml('article/edit.php', ['article' => $article]);
     }
 
     public function add()
@@ -45,21 +55,20 @@ class ArticlesController extends AbstractController
             try {
                 $article = Article::createFromArray($_POST, $this->user);
             } catch (InvalidArgumentException $e) {
-                $this->view->renderHtml('articleAdd.php', ['error' => $e->getMessage()]);
+                $this->view->renderHtml('article/add.php', ['error' => $e->getMessage()]);
             }
             header('Location: /articles/' . $article->getId(), true, 302);
             exit();
         }
-        $this->view->renderHtml('articleAdd.php');
+        $this->view->renderHtml('article/add.php');
     }
 
     public function delete(int $articleId)
     {
         $article = Article::getById($articleId);
-        if($article != null) {
+        if ($article != null) {
             $article->delete();
-        }
-        else{
+        } else {
             throw new NotFoundException();
         }
     }

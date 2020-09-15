@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/header.php'; ?>
+<?php include __DIR__ . '/../header.php'; ?>
     <h1>Создание новой статьи</h1>
 <?php if(!empty($error)): ?>
     <div style="color: red;"><?= $error ?></div>
@@ -12,4 +12,4 @@
         <br>
         <input type="submit" value="Создать">
     </form>
-<?php include __DIR__ . '/footer.php'; ?>
+<?php include __DIR__ . '/../footer.php'; ?>
